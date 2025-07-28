@@ -616,9 +616,9 @@ sentiment_map = {
     with col2:
         st.markdown("### **🎯 Business Intelligence Focus**")
         st.markdown("""
-        **Traditional NLP Approach:**
+        **Traditional Analytics Approach:**
         - **100% Accurate Sentiment**: Based on customer star ratings
-        - **Instant Processing**: No model loading time required
+        - **Instant Processing**: No complex computations required
         - **Transparent Logic**: Every result is explainable
         - **Business-Ready**: Optimized for stakeholder understanding
         
@@ -630,7 +630,7 @@ sentiment_map = {
         """)
     
     # Performance comparison
-    st.markdown("## 📊 **Traditional NLP Performance Matrix**")
+    st.markdown("## 📊 **Traditional Analytics Performance Matrix**")
     
     performance_data = {
         'Method': ['Rule-Based Sentiment', 'Text Processing', 'Statistical Analysis', 'Visualization'],
