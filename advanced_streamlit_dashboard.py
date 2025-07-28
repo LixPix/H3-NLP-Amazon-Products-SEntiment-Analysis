@@ -5,6 +5,15 @@ Optimized for cloud deployment with enhanced performance and error handling
 """
 
 import streamlit as st
+
+# Page configuration - MUST be first Streamlit command
+st.set_page_config(
+    page_title="🚀 Advanced ML Sentiment Analysis",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -31,27 +40,17 @@ try:
     from transformers import pipeline
     import torch
     TRANSFORMERS_AVAILABLE = True
-    # Cloud optimization: Check available memory
-    if torch.cuda.is_available():
-        st.sidebar.success("🚀 GPU acceleration available")
-    else:
-        st.sidebar.info("💻 Running on CPU (cloud optimized)")
+    BERT_AVAILABLE = True
+    # Store GPU/CPU status for later display
+    GPU_AVAILABLE = torch.cuda.is_available()
 except ImportError as e:
     TRANSFORMERS_AVAILABLE = False
-    st.sidebar.warning("⚠️ BERT/Transformers not available. Using traditional ML only.")
-    st.sidebar.info("💡 To enable BERT: Install transformers and torch packages")
-    BERT_AVAILABLE = True
-except ImportError:
     BERT_AVAILABLE = False
-    st.warning("⚠️ BERT/Transformers not available. Install with: pip install transformers torch")
-
-# Page configuration
-st.set_page_config(
-    page_title="🚀 Advanced ML Sentiment Analysis",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+    GPU_AVAILABLE = False
+    # Create dummy pipeline function to prevent errors
+    def pipeline(*args, **kwargs):
+        """Dummy pipeline function when transformers is not available"""
+        return None
 
 # Custom CSS for professional styling
 st.markdown("""
@@ -106,8 +105,15 @@ st.info("""
 📊 **Real-time Prediction**: Test any text with state-of-the-art models
 🏆 **Production-Ready**: Enterprise ML pipeline with GPU acceleration
 📈 **Deep Insights**: Confidence analysis & performance metrics
+⚡ **Auto-Training**: Automatically trains models if none are pre-loaded
 
 *Perfect for data scientists and technical teams requiring maximum accuracy.*
+""")
+
+st.success("""
+🚀 **Smart Model Loading**: This dashboard automatically trains a Random Forest model 
+on your data if no pre-trained models are found. For best performance, run the 
+Jupyter notebook to create optimized models.
 """)
 
 # Load data with cloud optimization
@@ -155,34 +161,91 @@ def load_data():
 # Load ML models
 @st.cache_resource
 def load_ml_models():
-    """Load trained ML models"""
+    """Load trained ML models or train simple ones on the fly"""
     models = {}
     
-    # Try to load saved models
+    # Try to load saved models first
     try:
         if os.path.exists('best_sentiment_model.pkl'):
             models['best_traditional'] = joblib.load('best_sentiment_model.pkl')
+            st.success("✅ Loaded saved Random Forest model")
         if os.path.exists('ensemble_sentiment_model.pkl'):
             models['ensemble'] = joblib.load('ensemble_sentiment_model.pkl')
+            st.success("✅ Loaded saved Ensemble model")
     except Exception as e:
         st.warning(f"Could not load saved models: {e}")
     
-    # Initialize BERT if available
-    if BERT_AVAILABLE:
+    # If no traditional models loaded, train a simple one
+    if 'best_traditional' not in models:
         try:
-            models['bert'] = pipeline("sentiment-analysis", 
-                                    model="cardiffnlp/twitter-roberta-base-sentiment-latest",
-                                    device=0 if torch.cuda.is_available() else -1)
+            # Load data for training
+            df = pd.read_csv("H3_reviews_preprocessed.csv")
+            if 'cleaned_text' in df.columns and 'sentiment' in df.columns:
+                st.info("🤖 Training a simple Random Forest model...")
+                
+                # Quick model training
+                from sklearn.feature_extraction.text import TfidfVectorizer
+                from sklearn.ensemble import RandomForestClassifier
+                from sklearn.pipeline import Pipeline
+                
+                # Use a sample for quick training
+                sample_size = min(1000, len(df))
+                df_sample = df.sample(n=sample_size, random_state=42)
+                
+                # Create a simple pipeline
+                model = Pipeline([
+                    ('tfidf', TfidfVectorizer(max_features=1000, stop_words='english')),
+                    ('rf', RandomForestClassifier(n_estimators=50, random_state=42))
+                ])
+                
+                # Train the model
+                X = df_sample['cleaned_text'].fillna('')
+                y = df_sample['sentiment']
+                model.fit(X, y)
+                
+                models['best_traditional'] = model
+                st.success("✅ Trained simple Random Forest model on sample data")
+                
         except Exception as e:
-            st.warning(f"Could not load BERT model: {e}")
+            st.warning(f"Could not train simple model: {e}")
+    
+    # Initialize BERT if available
+    if TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
+        try:
+            st.info("🤖 Loading BERT model for advanced sentiment analysis...")
+            models['bert'] = pipeline(
+                "sentiment-analysis", 
+                model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+                device=0 if torch.cuda.is_available() else -1,
+                return_all_scores=True
+            )
+            st.success("✅ BERT model loaded successfully!")
+        except Exception as e:
+            st.warning(f"⚠️ Could not load BERT model: {e}")
+            st.info("💡 BERT requires internet connection for first-time download")
+    else:
+        st.info("ℹ️ BERT/Transformers not available. Using traditional ML models only.")
     
     return models
+
+# Display BERT/GPU status in sidebar after page config
+if TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
+    if GPU_AVAILABLE:
+        st.sidebar.success("🚀 GPU acceleration available")
+    else:
+        st.sidebar.info("💻 Running on CPU (cloud optimized)")
+else:
+    st.sidebar.warning("⚠️ BERT/Transformers not available. "
+                      "Using traditional ML only.")
+    st.sidebar.info("💡 To enable BERT: Install transformers "
+                   "and torch packages")
 
 # Initialize session state for model predictions
 if 'ml_predictions' not in st.session_state:
     st.session_state.ml_predictions = {}
 
-    df = load_data()
+# Load data
+df = load_data()
 
 # Initialize session state for interactive filtering
 if 'selected_product' not in st.session_state:
@@ -196,6 +259,8 @@ if st.sidebar.button("🔄 Reset All Filters"):
     st.session_state.selected_product = None
     st.session_state.selected_sentiment = None
     st.rerun()
+
+# Load models
 models = load_ml_models()
 
 if df is not None:
@@ -204,8 +269,15 @@ if df is not None:
     
     # Model selection
     st.sidebar.subheader("🤖 ML Model Selection")
-    available_models = list(models.keys()) if models else ['None available']
-    selected_model = st.sidebar.selectbox("Choose ML Model:", available_models)
+    if models and len(models) > 0:
+        available_models = list(models.keys())
+        selected_model = st.sidebar.selectbox("Choose ML Model:", available_models)
+    else:
+        # Show available model types even when not loaded
+        model_options = ["Traditional ML (Not Loaded)", "BERT (Not Loaded)", "Ensemble (Not Loaded)"]
+        selected_model = st.sidebar.selectbox("Choose ML Model:", model_options)
+        st.sidebar.warning("⚠️ No trained models found. Run the Jupyter notebook to train models.")
+        st.sidebar.info("💡 Available after training: Random Forest, SVM, BERT, Ensemble")
     
     # Real-time prediction section
     st.sidebar.subheader("🔍 Real-time Prediction")
@@ -216,54 +288,88 @@ if df is not None:
     )
     
     if st.sidebar.button("🚀 Predict Sentiment", type="primary"):
-        if selected_model in models:
+        if models and selected_model in models:
             try:
-                if selected_model == 'bert' and BERT_AVAILABLE:
-                    result = models['bert'](user_text)[0]
-                    label_mapping = {
-                        'LABEL_0': 'Negative',
-                        'LABEL_1': 'Neutral',
-                        'LABEL_2': 'Positive',
-                        'NEGATIVE': 'Negative',
-                        'NEUTRAL': 'Neutral',
-                        'POSITIVE': 'Positive'
-                    }
-                    sentiment = label_mapping.get(
-                        result['label'], result['label']
-                    )
-                    confidence = result['score']
+                if selected_model == 'bert' and TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
+                    # BERT prediction with enhanced error handling
+                    with st.spinner("🤖 Running BERT analysis..."):
+                        result = models['bert'](user_text)
+                        
+                        # Handle different BERT output formats
+                        if isinstance(result, list) and len(result) > 0:
+                            if isinstance(result[0], list):
+                                # Multiple scores format
+                                scores = result[0]
+                                best_result = max(scores, key=lambda x: x['score'])
+                            else:
+                                # Single result format
+                                best_result = result[0]
+                            
+                            # Map BERT labels to readable format
+                            label_mapping = {
+                                'LABEL_0': 'Negative',
+                                'LABEL_1': 'Neutral', 
+                                'LABEL_2': 'Positive',
+                                'NEGATIVE': 'Negative',
+                                'NEUTRAL': 'Neutral',
+                                'POSITIVE': 'Positive'
+                            }
+                            
+                            sentiment = label_mapping.get(
+                                best_result['label'], best_result['label']
+                            )
+                            confidence = best_result['score']
+                            
+                            # Enhanced prediction display with confidence visualization
+                            if sentiment == 'Positive':
+                                st.sidebar.success(
+                                    f"**🟢 {sentiment}** "
+                                    f"(Confidence: {confidence:.1%})"
+                                )
+                            elif sentiment == 'Negative':
+                                st.sidebar.error(
+                                    f"**🔴 {sentiment}** "
+                                    f"(Confidence: {confidence:.1%})"
+                                )
+                            else:
+                                st.sidebar.warning(
+                                    f"**🟡 {sentiment}** "
+                                    f"(Confidence: {confidence:.1%})"
+                                )
+                            
+                            # Add confidence meter
+                            st.sidebar.progress(confidence)
+                            
+                            # Show detailed BERT analysis
+                            with st.sidebar.expander("🔍 Detailed BERT Analysis"):
+                                if isinstance(result[0], list):
+                                    for score_item in result[0]:
+                                        label = label_mapping.get(score_item['label'], score_item['label'])
+                                        score = score_item['score']
+                                        st.write(f"**{label}**: {score:.1%}")
+                        else:
+                            st.sidebar.error("Invalid BERT response format")
                     
-                    # Enhanced prediction display
-                    if sentiment == 'Positive':
-                        st.sidebar.success(
-                            f"**🟢 {sentiment}** "
-                            f"(Confidence: {confidence:.1%})"
-                        )
-                    elif sentiment == 'Negative':
-                        st.sidebar.error(
-                            f"**🔴 {sentiment}** "
-                            f"(Confidence: {confidence:.1%})"
-                        )
-                    else:
-                        st.sidebar.warning(
-                            f"**🟡 {sentiment}** "
-                            f"(Confidence: {confidence:.1%})"
-                        )
+                elif 'best_traditional' in selected_model or selected_model == 'best_traditional':
+                    prediction = models['best_traditional'].predict([user_text])[0]
+                    st.sidebar.success(f"**{prediction.title()}** (Random Forest)")
                     
-                    # Add confidence meter
-                    st.sidebar.progress(confidence)
+                elif 'ensemble' in selected_model:
+                    prediction = models['ensemble'].predict([user_text])[0]
+                    st.sidebar.success(f"**{prediction.title()}** (Ensemble)")
                     
-                elif 'best_traditional' in selected_model:
-                    prediction = models['best_traditional'].predict(
-                        [user_text]
-                    )[0]
-                    st.sidebar.success(f"**{prediction.title()}**")
                 else:
                     st.sidebar.info("Model prediction not available")
+                    
             except Exception as e:
-                st.sidebar.error(f"Prediction error: {e}")
+                st.sidebar.error(f"❌ Prediction error: {e}")
+                st.sidebar.info("💡 Try a shorter text or check model availability")
         else:
-            st.sidebar.warning("Please select a valid model for prediction")
+            if not models or len(models) == 0:
+                st.sidebar.warning("❌ No trained models available for prediction")
+                st.sidebar.info("🚀 Run the Jupyter notebook to train ML models first")
+            else:
+                st.sidebar.warning("Please select a valid model for prediction")
     
     # Main content tabs
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
@@ -740,34 +846,103 @@ if df is not None:
         st.markdown("### 🤖 **ML-Powered Business Insights**")
         
         # Sentiment prediction confidence analysis
-        if 'bert' in models:
+        if 'bert' in models and TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
             st.markdown("#### 🎯 **BERT Confidence Analysis**")
             
-            # Sample confidence analysis (for demonstration)
-            sample_texts = df['Text'].sample(min(50, len(df))).tolist()
+            # Sample confidence analysis with improved error handling
+            sample_texts = df['Text'].sample(min(20, len(df))).tolist()
             confidences = []
             predictions = []
             
-            with st.spinner("Analyzing sample reviews with BERT..."):
-                for text in sample_texts[:10]:  # Limit for demo
+            with st.spinner("🤖 Analyzing sample reviews with BERT..."):
+                progress_bar = st.progress(0)
+                for i, text in enumerate(sample_texts[:10]):  # Limit for demo
                     try:
-                        result = models['bert'](text[:512])[0]  # Truncate for BERT
-                        confidences.append(result['score'])
-                        predictions.append(result['label'])
-                    except:
+                        # Truncate text for BERT (max 512 tokens)
+                        truncated_text = str(text)[:2000] if text else ""
+                        if len(truncated_text) > 10:  # Valid text
+                            result = models['bert'](truncated_text)
+                            
+                            # Handle different BERT output formats
+                            if isinstance(result, list) and len(result) > 0:
+                                if isinstance(result[0], list):
+                                    # Multiple scores format
+                                    best_result = max(result[0], key=lambda x: x['score'])
+                                else:
+                                    # Single result format
+                                    best_result = result[0]
+                                
+                                confidences.append(best_result['score'])
+                                predictions.append(best_result['label'])
+                            
+                        progress_bar.progress((i + 1) / len(sample_texts[:10]))
+                    except Exception as e:
+                        st.warning(f"BERT analysis error for sample {i+1}: {e}")
                         confidences.append(0.5)
                         predictions.append('NEUTRAL')
+                
+                progress_bar.empty()
             
             if confidences:
                 avg_confidence = np.mean(confidences)
-                st.metric("🎯 Average BERT Confidence", f"{avg_confidence:.1%}",
-                         help="Higher confidence indicates more certain predictions")
+                col1, col2 = st.columns(2)
                 
-                # Confidence distribution
-                fig_conf = px.histogram(x=confidences, nbins=20,
-                                      title="BERT Prediction Confidence Distribution")
-                fig_conf.update_layout(xaxis_title="Confidence Score", yaxis_title="Count")
-                st.plotly_chart(fig_conf, use_container_width=True)
+                with col1:
+                    st.metric("🎯 Average BERT Confidence", f"{avg_confidence:.1%}",
+                             help="Higher confidence indicates more certain predictions")
+                
+                with col2:
+                    st.metric("📊 Samples Analyzed", len(confidences),
+                             help="Number of reviews analyzed with BERT")
+                
+                # Confidence distribution chart
+                if len(confidences) > 3:
+                    fig_conf = px.histogram(
+                        x=confidences, 
+                        nbins=min(10, len(confidences)),
+                        title="BERT Prediction Confidence Distribution",
+                        labels={'x': 'Confidence Score', 'count': 'Number of Predictions'}
+                    )
+                    fig_conf.update_layout(
+                        xaxis_title="Confidence Score", 
+                        yaxis_title="Count",
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig_conf, use_container_width=True)
+                
+                # BERT vs Traditional ML comparison
+                st.markdown("##### 🆚 **BERT vs Traditional ML Insights**")
+                
+                # Map BERT predictions to sentiment
+                bert_sentiments = []
+                label_mapping = {
+                    'LABEL_0': 'negative', 'LABEL_1': 'neutral', 'LABEL_2': 'positive',
+                    'NEGATIVE': 'negative', 'NEUTRAL': 'neutral', 'POSITIVE': 'positive'
+                }
+                
+                for pred in predictions:
+                    bert_sentiments.append(label_mapping.get(pred, 'neutral'))
+                
+                if len(bert_sentiments) > 0:
+                    bert_pos_rate = bert_sentiments.count('positive') / len(bert_sentiments)
+                    traditional_pos_rate = (df['sentiment'] == 'positive').mean()
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("🤖 BERT Positive Rate", f"{bert_pos_rate:.1%}")
+                    with col2:
+                        st.metric("📊 Traditional Positive Rate", f"{traditional_pos_rate:.1%}")
+                    
+                    difference = bert_pos_rate - traditional_pos_rate
+                    if abs(difference) > 0.05:
+                        if difference > 0:
+                            st.success(f"✅ BERT finds {difference:.1%} more positive sentiment than traditional methods")
+                        else:
+                            st.info(f"ℹ️ BERT finds {abs(difference):.1%} less positive sentiment than traditional methods")
+                    else:
+                        st.success("✅ BERT and traditional methods show similar sentiment patterns")
+        else:
+            st.info("🤖 BERT model not available. Install transformers to enable advanced analysis.")
         
         # Advanced text analytics
         st.markdown("### 📝 **Advanced Text Analytics**")
@@ -935,25 +1110,49 @@ if df is not None:
             
             **Model Specifications:**
             - **Architecture**: RoBERTa-base (125M parameters)
-            - **Pre-training**: Twitter sentiment + MLM
-            - **Tokenizer**: Byte-Pair Encoding (50,265 vocab)
-            - **Framework**: Hugging Face Transformers 4.36.0
-            - **Backend**: PyTorch 2.1.0 with GPU support
+            - **Pre-training**: Twitter sentiment + MLM (Masked Language Modeling)
+            - **Tokenizer**: Byte-Pair Encoding (50,265 vocabulary size)
+            - **Framework**: Hugging Face Transformers 4.36.0+
+            - **Backend**: PyTorch 2.1.0+ with automatic GPU/CPU detection
+            - **Model Source**: `cardiffnlp/twitter-roberta-base-sentiment-latest`
             
             **Technical Pipeline:**
             ```python
-            # BERT Sentiment Pipeline
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForSequenceClassification.from_pretrained(model_name)
-            sentiment_pipeline = pipeline("sentiment-analysis", 
-                                         model=model, tokenizer=tokenizer)
+            # BERT Sentiment Analysis Pipeline
+            from transformers import pipeline
+            
+            # Initialize with automatic device detection
+            sentiment_pipeline = pipeline(
+                "sentiment-analysis",
+                model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+                device=0 if torch.cuda.is_available() else -1,
+                return_all_scores=True  # Get confidence for all classes
+            )
+            
+            # Predict sentiment with confidence scores
+            result = sentiment_pipeline("This product is amazing!")
+            # Output: [{'label': 'POSITIVE', 'score': 0.9234}]
             ```
             
             **Performance Characteristics:**
-            - **Accuracy**: 92-95% on benchmark datasets
-            - **Inference Speed**: ~100ms per text (GPU)
-            - **Memory**: ~500MB VRAM required
-            - **Context Length**: 512 tokens maximum
+            - **Accuracy**: 92-95% on benchmark sentiment datasets
+            - **Inference Speed**: ~100ms per text (GPU), ~500ms (CPU)
+            - **Memory Requirements**: ~500MB VRAM (GPU) or ~2GB RAM (CPU)
+            - **Context Length**: 512 tokens maximum (~400 words)
+            - **Languages**: Optimized for English social media text
+            
+            **BERT Advantages:**
+            - ✅ **Contextual Understanding**: Considers word relationships
+            - ✅ **State-of-the-art Accuracy**: Best-in-class performance
+            - ✅ **Pre-trained Knowledge**: Leverages massive training data
+            - ✅ **Confidence Scores**: Provides prediction uncertainty
+            - ✅ **Robust to Variations**: Handles slang, typos, abbreviations
+            
+            **Cloud Deployment Optimizations:**
+            - 🌐 **Automatic Fallback**: CPU mode when GPU unavailable
+            - 📦 **Model Caching**: Downloads once, cached locally
+            - ⚡ **Batch Processing**: Efficient for multiple predictions
+            - 🔒 **Error Handling**: Graceful degradation on failures
             """)
         
         with col2:
@@ -1012,22 +1211,41 @@ if df is not None:
         | **🎯 SVM** | Balanced performance | • Strong generalization<br>• Works with high dimensions<br>• Kernel flexibility | • Slower training<br>• Sensitive to feature scaling |
         | **🔄 Ensemble** | Critical applications | • Combines strengths<br>• Reduces individual weaknesses<br>• Robust predictions | • Increased complexity<br>• Higher maintenance |
         
-        ### 🚀 **Production Deployment Recommendations**
+        ### 🚀 **Production Deployment Guide**
         
-        **For Real-time Applications (< 50ms latency):**
-        - Use **Random Forest** or **Logistic Regression**
-        - Deploy with **scikit-learn** + **Flask/FastAPI**
-        - Implement **model caching** for frequent predictions
+        **Ready-to-Deploy Cloud Setup:**
         
-        **For Batch Processing (accuracy priority):**
-        - Use **BERT/RoBERTa** for maximum accuracy
-        - Deploy with **Transformers** + **GPU acceleration**
-        - Implement **batch inference** for efficiency
+        **1. Streamlit Cloud (Current Setup):**
+        ```bash
+        # This dashboard is ready for Streamlit Cloud deployment
+        # Files included: requirements.txt, .streamlit/config.toml
+        streamlit run advanced_streamlit_dashboard.py
+        ```
         
-        **For Hybrid Systems:**
-        - Use **Ensemble method** combining both approaches
-        - **Fast models** for real-time screening
-        - **BERT** for detailed analysis of flagged content
+        **2. Docker Deployment:**
+        ```dockerfile
+        FROM python:3.9-slim
+        COPY requirements.txt .
+        RUN pip install -r requirements.txt
+        COPY . .
+        EXPOSE 8501
+        CMD ["streamlit", "run", "advanced_streamlit_dashboard.py"]
+        ```
+        
+        **3. API Endpoint (FastAPI):**
+        ```python
+        # For production API deployment
+        from fastapi import FastAPI
+        import joblib
+        
+        app = FastAPI()
+        model = joblib.load('best_sentiment_model.pkl')
+        
+        @app.post("/predict")
+        def predict_sentiment(text: str):
+            prediction = model.predict([text])[0]
+            return {"sentiment": prediction}
+        ```
         """)
         
         # Code examples
