@@ -50,7 +50,15 @@ st.markdown("""
 
 # Header with animation
 st.markdown('<h1 class="main-header">📊 Amazon Reviews Analytics Dashboard</h1>', unsafe_allow_html=True)
-st.markdown("### Real-time Sentiment Analysis & Business Intelligence")
+st.markdown("### Amazon Product Review Analytics & Business Intelligence")
+
+# Methodology disclaimer
+st.info("""
+### 🔍 **Dashboard Methodology**
+This dashboard uses **traditional data analytics** with pre-processed sentiment data.  
+Sentiment classifications are derived from Amazon star ratings (1-2★=negative, 3★=neutral, 4-5★=positive).  
+**Focus**: Business intelligence, statistical analysis, and data visualization.
+""")
 
 # Loading spinner
 with st.spinner('🔄 Loading dashboard data...'):
@@ -202,7 +210,7 @@ st.info(f"📊 Showing {len(filtered):,} reviews out of {len(df):,} total review
 # Enhanced main dashboard with tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Overview", "📈 Trends", "☁️ Text Analysis", 
-    "🔍 Deep Dive", "🤖 ML Methodology"
+    "🔍 Deep Dive", "📊 Traditional Analytics"
 ])
 
 with tab1:
