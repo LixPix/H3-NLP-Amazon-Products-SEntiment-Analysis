@@ -475,14 +475,14 @@ with col3:
     """)
 
 with tab5:
-    st.markdown("# 📊 Traditional NLP & Business Intelligence Methodology")
+    st.markdown("# 📊 Traditional Data Analytics & Business Intelligence")
     
     st.markdown("---")
     
     # Sentiment Keywords Analysis Section
     st.markdown("### 🔍 **Sentiment Keywords Analysis**")
     st.markdown("""
-    Based on analysis of the Amazon reviews dataset, here are the key words 
+    Based on statistical analysis of the Amazon reviews dataset, here are the key words 
     that most strongly impact sentiment scores:
     """)
     
@@ -579,12 +579,12 @@ with tab5:
     # Overview section
     st.markdown("## 📊 **Business Intelligence Pipeline**")
     st.markdown("""
-    This dashboard employs **traditional NLP and rule-based methods** 
+    This dashboard employs **traditional data analytics and statistical methods** 
     for reliable, transparent business intelligence from Amazon reviews.
     """)
     
     # Core techniques
-    st.markdown("## 🔬 **Traditional NLP Methods**")
+    st.markdown("## 🔬 **Traditional Data Analytics Methods**")
     
     col1, col2 = st.columns(2)
     
@@ -595,6 +595,7 @@ with tab5:
 import pandas as pd
 from collections import Counter
 from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 # Rule-based sentiment mapping
 sentiment_map = {
@@ -617,7 +618,7 @@ sentiment_map = {
         st.markdown("""
         **Traditional NLP Approach:**
         - **100% Accurate Sentiment**: Based on customer star ratings
-        - **Instant Processing**: No ML model loading time
+        - **Instant Processing**: No model loading time required
         - **Transparent Logic**: Every result is explainable
         - **Business-Ready**: Optimized for stakeholder understanding
         
@@ -642,8 +643,9 @@ sentiment_map = {
     st.caption("*Rule-based: Perfect consistency with Amazon star ratings")
     
     st.success("""
-    💡 **Traditional NLP Excellence**: This dashboard delivers instant business insights 
-    using proven traditional methods that prioritize transparency and reliability.
+    💡 **Traditional Analytics Excellence**: This dashboard delivers instant 
+    business insights using proven statistical methods that prioritize 
+    transparency and reliability.
     """)
 
 # Sidebar analytics
@@ -652,14 +654,14 @@ sentiment_map = {
     st.markdown("## 📊 **Traditional Analytics Methodology**")
     
     st.info("""
-    **🔍 This dashboard uses traditional NLP methods rather than modern transformers:**
+    **🔍 This dashboard uses traditional data analytics and statistical methods:**
     
-    ✅ **NLTK-based preprocessing** for reliability and interpretability  
-    ✅ **Rule-based classification** for perfect accuracy with rated data  
+    ✅ **NLTK-based preprocessing** for reliable text processing  
+    ✅ **Rule-based classification** using customer star ratings  
     ✅ **Statistical analysis** for business insights  
-    ✅ **No deep learning complexity** - optimized for production simplicity  
+    ✅ **Simple and transparent** - optimized for clarity and speed  
     
-    **Result**: A fast, interpretable, and highly accurate sentiment analysis system 
+    **Result**: A fast, interpretable, and accurate sentiment analysis system 
     suitable for business stakeholders who need to understand the methodology.
     """)
     
@@ -668,14 +670,14 @@ sentiment_map = {
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("### **✅ Advantages of Traditional NLP:**")
+        st.markdown("### **✅ Advantages of Traditional Analytics:**")
         st.markdown("""
         - **100% Classification Accuracy**: Rating-based mapping
-        - **Instant Processing**: No GPU or model loading time
+        - **Instant Processing**: No complex computations required
         - **Full Interpretability**: Every decision is explainable
-        - **Zero Model Drift**: Consistent results over time
+        - **Consistent Results**: Reliable and reproducible over time
         - **Minimal Resources**: Runs on any hardware
-        - **Easy Maintenance**: No retraining required
+        - **Easy Maintenance**: Simple rules, no retraining needed
         """)
     
     with col2:
@@ -690,7 +692,7 @@ sentiment_map = {
         """)
     
     st.success("""
-    💡 **This methodology prioritizes business value over technical complexity**, 
+    💡 **This methodology prioritizes business value and simplicity**, 
     delivering a production-ready system that stakeholders can trust and understand.
     """)
 
