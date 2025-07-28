@@ -538,174 +538,12 @@ sentiment_map = {
     """)
 
 # Sidebar analytics
-    st.markdown("# 🚀 Advanced Machine Learning & NLP Methodology")
     
-    st.markdown("---")
-    
-    # Overview section
-    st.markdown("## 📊 **Overview of Applied Advanced ML Methods**")
-    st.markdown("""
-    This sentiment analysis system now employs **state-of-the-art machine learning techniques** 
-    including **BERT transformers**, **ensemble methods**, and **advanced scikit-learn algorithms** 
-    to provide enterprise-grade sentiment analysis with superior accuracy and performance.
-    """)
-    
-    # Core techniques
-    st.markdown("## 🔬 **Advanced ML Techniques & Libraries**")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### **1. 🤖 BERT Transformer Models**")
-        st.code("""
-# BERT/RoBERTa Implementation
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-import torch
-
-# Pre-trained BERT for sentiment analysis
-model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-sentiment_pipeline = pipeline("sentiment-analysis", 
-                             model=model_name, tokenizer=model_name)
-        """, language="python")
-        
-        st.markdown("""
-        **Technical Implementation:**
-        - **Architecture**: **RoBERTa-base** (125M parameters, 12 layers)
-        - **Tokenizer**: **Byte-Pair Encoding (BPE)** with 50,265 vocabulary
-        - **Framework**: **Hugging Face Transformers 4.36.0**
-        - **Backend**: **PyTorch 2.1.0** with GPU acceleration
-        - **Accuracy**: **92-95%** (state-of-the-art performance)
-        
-        **Advanced NLP Features:**
-        - ✅ **BERT/RoBERTa transformers** for contextual understanding
-        - ✅ **Hugging Face models** for production deployment
-        - ✅ **GPU acceleration** for faster inference
-        """)
-        
-        st.markdown("### **3. 🌲 Ensemble Learning Methods**")
-        st.markdown("""
-        **Libraries & Methods:**
-        - **Random Forest**: **scikit-learn 1.3.0** ensemble method
-        - **SVM**: **RBF kernel** with C=1.0 optimization
-        - **Naive Bayes**: **Multinomial** with Laplace smoothing
-        - **Logistic Regression**: **L2 regularization**
-        - **Gradient Boosting**: **Adaptive learning** with 50 estimators
-        
-        **Technical Specs:**
-        - **Feature Engineering**: **TF-IDF Vectorization** (5,000 features)
-        - **N-gram Range**: **(1,2)** for phrase-level context
-        - **Cross-Validation**: **5-fold CV** for robust evaluation
-        - **Ensemble Strategy**: **Weighted voting** by performance
-        """)
-    
-    with col2:
-        st.markdown("### **2. 🎯 Advanced ML Classification Pipeline**")
-        st.code("""
-# Multi-Algorithm ML Pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-# Ensemble approach combining multiple models
-models = {
-    'Random Forest': RandomForestClassifier(n_estimators=100),
-    'SVM': SVC(kernel='rbf', probability=True),
-    'Naive Bayes': MultinomialNB(),
-    'Logistic Regression': LogisticRegression()
-}
-        """, language="python")
-        
-        st.markdown("""
-        **Classification Methods:**
-        - **Multi-Algorithm**: **5 different ML algorithms** comparison
-        - **Performance Range**: **80-95% accuracy** across models
-        - **Best Performer**: **BERT RoBERTa** (92-95% accuracy)
-        - **Fastest Model**: **Naive Bayes** (5ms inference time)
-        - **Production Ready**: **Random Forest** (85-90% accuracy)
-        
-        **Hybrid Approach:**
-        - ✅ **BERT** for maximum accuracy applications
-        - ✅ **Ensemble** for balanced performance
-        - ✅ **Traditional ML** for fast production deployment
-        - ✅ **Rule-based fallback** for edge cases
-        """)
-        
-        st.markdown("### **4. � Advanced Model Evaluation**")
-        st.markdown("""
-        **Evaluation Methods:**
-        - **Accuracy Score**: Overall classification performance
-        - **Precision & Recall**: Per-class performance metrics
-        - **F1-Score**: Harmonic mean for balanced evaluation
-        - **Confusion Matrix**: Detailed classification breakdown
-        - **Cross-Validation**: 5-fold CV for generalization
-        - **ROC-AUC**: Area under curve for binary classification
-        
-        **Performance Benchmarks:**
-        - **BERT**: 92-95% accuracy (state-of-the-art)
-        - **Random Forest**: 85-90% accuracy (production)
-        - **Ensemble**: 88-92% accuracy (balanced)
-        """)
-    
-    # Technology Stack
-    st.markdown("## �️ **Complete Technology Stack**")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("### **NLP Libraries**")
-        st.code("""
-nltk==3.8.1
-wordcloud==1.9.2
-collections (built-in)
-re (built-in)
-        """)
-    
-    with col2:
-        st.markdown("### **Data Processing**")
-        st.code("""
-pandas==2.1.1
-numpy==1.24.0
-openpyxl (Excel support)
-        """)
-    
-    with col3:
-        st.markdown("### **Visualization**")
-        st.code("""
-streamlit>=1.28.0
-plotly>=5.17.0
-matplotlib>=3.7.0
-        """)
-    
-    # Privacy section
-    st.markdown("## 🔒 **Cryptographic Security Implementation**")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### **Encryption Specifications**")
-        st.code("""
-from cryptography.fernet import Fernet
-import hashlib
-import base64
-
-# AES-128-CBC with HMAC-SHA256
-cipher_suite = Fernet(encryption_key)
-        """, language="python")
-    
-    with col2:
-        st.markdown("""
-        **Security Standards:**
-        - **Algorithm**: **Fernet** (AES-128-CBC + HMAC-SHA256)
-        - **Key Derivation**: **SHA-256** hashing
-        - **Encoding**: **Base64 URL-safe** 
-        - **Compliance**: **FIPS 140-2** compatible
-        """)
-    
-    # Architecture explanation
-    st.markdown("## 🎯 **Architecture: Traditional NLP Pipeline**")
+    # Display methodology explanation
+    st.markdown("## 📊 **Traditional Analytics Methodology**")
     
     st.info("""
-    **🔍 This project deliberately uses traditional NLP methods rather than modern transformers:**
+    **🔍 This dashboard uses traditional NLP methods rather than modern transformers:**
     
     ✅ **NLTK-based preprocessing** for reliability and interpretability  
     ✅ **Rule-based classification** for perfect accuracy with rated data  
@@ -717,7 +555,7 @@ cipher_suite = Fernet(encryption_key)
     """)
     
     # Performance metrics
-    st.markdown("## � **Performance & Validation**")
+    st.markdown("## 📈 **Performance & Validation**")
     
     col1, col2 = st.columns(2)
     with col1:
