@@ -263,7 +263,7 @@ with tab2:
         col1, col2 = st.columns(2)
         
         with col1:
-            monthly_data = filtered.groupby(['month', 'sentiment']).size().unstack().fillna(0)
+            monthly_data = filtered.groupby(['month', 'sentiment'], observed=True).size().unstack().fillna(0)
             
             fig_trend = px.line(
                 monthly_data,
@@ -339,7 +339,7 @@ with tab3:
         # Text length analysis
         st.markdown("##### � Review Length Analysis")
         
-        length_by_sentiment = filtered.groupby('sentiment')['text_length'].agg(['mean', 'median', 'std']).round(2)
+        length_by_sentiment = filtered.groupby('sentiment', observed=True)['text_length'].agg(['mean', 'median', 'std']).round(2)
         
         fig_length = px.box(
             filtered, 
