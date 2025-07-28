@@ -19,8 +19,9 @@ This project analyzes Amazon product reviews using **state-of-the-art ML techniq
 
 ## � **Quick Start**
 
-### **🎯 Live Demo**
-**Dashboard**: [Streamlit Cloud](https://h3-nlp-amazon-products-sentiment-analysis.streamlit.app)
+### **🎯 Live Demo - Dual Dashboards**
+- **📊 Main Analytics**: [Business Dashboard](https://amazon-sentiment-analytics.streamlit.app) *(Fast, streamlined)*
+- **🤖 Advanced ML**: [Technical Dashboard](https://amazon-sentiment-advanced-ml.streamlit.app) *(BERT, ensemble models)*
 
 ### **� Local Setup**
 ```bash
@@ -77,12 +78,12 @@ streamlit run advanced_streamlit_dashboard.py
 
 ## 📊 **Usage & Deployment**
 
-### **🎮 Interactive Dashboard**
+### **🎮 Dual Dashboard Options**
 ```bash
-# Main Dashboard (Streamlined)
+# Option 1: Main Analytics Dashboard (Fast)
 streamlit run streamlit_dashboard.py
 
-# Advanced ML Dashboard (Full Features)
+# Option 2: Advanced ML Dashboard (Full Features)
 streamlit run advanced_streamlit_dashboard.py
 ```
 
