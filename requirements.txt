@@ -1,9 +1,7 @@
-streamlit==1.40.2
-pandas==2.1.1
-matplotlib==3.8.0
-numpy==1.26.1
-plotly==5.17.0
-wordcloud==1.9.2
-nltk==3.8.1
-cryptography==41.0.7
-openpyxl==3.1.2
+streamlit
+pandas
+matplotlib
+plotly
+wordcloud
+nltk
+openpyxl
