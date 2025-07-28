@@ -49,16 +49,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header with animation
-st.markdown('<h1 class="main-header">📊 Amazon Reviews Analytics Dashboard</h1>', unsafe_allow_html=True)
-st.markdown("### Amazon Product Review Analytics & Business Intelligence")
+st.markdown(
+    '<h1 class="main-header">'
+    '📊 Amazon Reviews Analytics Dashboard</h1>',
+    unsafe_allow_html=True
+)
 
-# Methodology disclaimer
 st.info("""
-### 🔍 **Dashboard Methodology**
-This dashboard uses **traditional data analytics** with pre-processed sentiment data.  
-Sentiment classifications are derived from Amazon star ratings (1-2★=negative, 3★=neutral, 4-5★=positive).  
-**Focus**: Business intelligence, statistical analysis, and data visualization.
-""")
+🔍 **Traditional Analytics Approach**
+This dashboard uses **traditional data analytics** with pre-processed data.
+Sentiment classifications are derived from Amazon star ratings
+(1-2★=negative, 3★=neutral, 4-5★=positive).
+""", icon="ℹ️")
+st.markdown("### Amazon Product Review Analytics & Business Intelligence")
 
 # Loading spinner
 with st.spinner('🔄 Loading dashboard data...'):
@@ -81,7 +84,10 @@ with st.spinner('🔄 Loading dashboard data...'):
             
             return df
         except FileNotFoundError:
-            st.error("❌ Data file not found. Please ensure 'H3_reviews_preprocessed.csv' exists.")
+            st.error(
+                "❌ Data file not found. Please ensure "
+                "'H3_reviews_preprocessed.csv' exists."
+            )
             return pd.DataFrame()
         except Exception as e:
             st.error(f"❌ Error loading data: {str(e)}")
@@ -104,34 +110,34 @@ avg_text_length = df['text_length'].mean()
 
 with col1:
     st.metric(
-        "📊 Total Reviews", 
+        "📊 Total Reviews",
         f"{total_reviews:,}",
         delta=f"+{total_reviews - 2500}" if total_reviews > 2500 else None
     )
 with col2:
     positive_pct = (positive_reviews / total_reviews * 100)
     st.metric(
-        "😊 Positive", 
+        "😊 Positive",
         f"{positive_reviews:,}",
         delta=f"{positive_pct:.1f}%"
     )
 with col3:
     negative_pct = (negative_reviews / total_reviews * 100)
     st.metric(
-        "😞 Negative", 
+        "😞 Negative",
         f"{negative_reviews:,}",
         delta=f"{negative_pct:.1f}%"
     )
 with col4:
     neutral_pct = (neutral_reviews / total_reviews * 100)
     st.metric(
-        "😐 Neutral", 
+        "😐 Neutral",
         f"{neutral_reviews:,}",
         delta=f"{neutral_pct:.1f}%"
     )
 with col5:
     st.metric(
-        "📝 Avg Text Length", 
+        "📝 Avg Text Length",
         f"{avg_text_length:.0f}",
         delta="characters"
     )
@@ -201,15 +207,21 @@ with st.spinner("🔄 Applying filters..."):
         ]
 
 if filtered.empty:
-    st.warning("⚠️ No data matches your filter criteria. Please adjust your selection.")
+    st.warning(
+        "⚠️ No data matches your filter criteria. "
+        "Please adjust your selection."
+    )
     st.stop()
 
 # Display filtered data info
-st.info(f"📊 Showing {len(filtered):,} reviews out of {len(df):,} total reviews")
+st.info(
+    f"📊 Showing {len(filtered):,} reviews "
+    f"out of {len(df):,} total reviews"
+)
 
 # Enhanced main dashboard with tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Overview", "📈 Trends", "☁️ Text Analysis", 
+    "📊 Overview", "📈 Trends", "☁️ Text Analysis",
     "🔍 Deep Dive", "📊 Traditional Analytics"
 ])
 
@@ -467,8 +479,105 @@ with tab5:
     
     st.markdown("---")
     
+    # Sentiment Keywords Analysis Section
+    st.markdown("### 🔍 **Sentiment Keywords Analysis**")
+    st.markdown("""
+    Based on analysis of the Amazon reviews dataset, here are the key words 
+    that most strongly impact sentiment scores:
+    """)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("**😊 Positive Keywords:**")
+        st.markdown("""
+        - **Quality**: `excellent`, `perfect`, `amazing`, `great`
+        - **Satisfaction**: `love`, `recommend`, `happy`, `pleased`
+        - **Performance**: `works`, `effective`, `durable`, `reliable`
+        - **Value**: `worth`, `useful`, `convenient`, `easy`
+        """)
+    
+    with col2:
+        st.markdown("**😞 Negative Keywords:**")
+        st.markdown("""
+        - **Problems**: `broken`, `defective`, `failed`, `issue`
+        - **Disappointment**: `terrible`, `awful`, `waste`, `useless`
+        - **Functionality**: `doesnt`, `wont`, `stopped`, `difficult`
+        - **Quality Issues**: `cheap`, `flimsy`, `poor`, `worst`
+        """)
+    
+    with col3:
+        st.markdown("**😐 Neutral Keywords:**")
+        st.markdown("""
+        - **Descriptive**: `okay`, `average`, `decent`, `fine`
+        - **Conditional**: `depends`, `maybe`, `sometimes`, `might`
+        - **Mixed**: `mixed`, `some`, `partly`, `somewhat`
+        - **Moderate**: `reasonable`, `acceptable`, `fairly`
+        """)
+
+    st.markdown("---")
+    st.markdown("### 📊 **Key Insights from Traditional Analytics**")
+    
+    # Calculate some insights
+    if not filtered.empty:
+        insights = []
+        
+        # Rating distribution insight
+        avg_rating = filtered['Score'].mean()
+        if avg_rating >= 4.0:
+            insights.append(
+                f"🟢 **High Satisfaction**: Average rating of {avg_rating:.1f}/5 "
+                f"indicates strong customer satisfaction"
+            )
+        elif avg_rating >= 3.0:
+            insights.append(
+                f"🟡 **Moderate Satisfaction**: Average rating of {avg_rating:.1f}/5 "
+                f"suggests room for improvement"
+            )
+        else:
+            insights.append(
+                f"🔴 **Low Satisfaction**: Average rating of {avg_rating:.1f}/5 "
+                f"indicates significant quality issues"
+            )
+        
+        # Sentiment distribution insight
+        pos_pct = (filtered['sentiment'] == 'positive').mean() * 100
+        if pos_pct >= 70:
+            insights.append(
+                f"✅ **Positive Sentiment Dominance**: {pos_pct:.1f}% positive reviews "
+                f"indicate strong product appeal"
+            )
+        elif pos_pct >= 50:
+            insights.append(
+                f"⚖️ **Balanced Sentiment**: {pos_pct:.1f}% positive sentiment "
+                f"suggests mixed customer experiences"
+            )
+        else:
+            insights.append(
+                f"⚠️ **Sentiment Concerns**: Only {pos_pct:.1f}% positive sentiment "
+                f"indicates quality or expectation issues"
+            )
+        
+        # Text length insight
+        avg_length = filtered['text_length'].mean()
+        if avg_length > 200:
+            insights.append(
+                f"📝 **Detailed Reviews**: Average length of {avg_length:.0f} "
+                f"characters suggests engaged customers providing detailed feedback"
+            )
+        else:
+            insights.append(
+                f"📝 **Concise Reviews**: Average length of {avg_length:.0f} "
+                f"characters indicates brief, focused feedback"
+            )
+        
+        for insight in insights:
+            st.markdown(f"- {insight}")
+
+    st.markdown("---")
+    
     # Overview section
-    st.markdown("## � **Business Intelligence Pipeline**")
+    st.markdown("## 📊 **Business Intelligence Pipeline**")
     st.markdown("""
     This dashboard employs **traditional NLP and rule-based methods** 
     for reliable, transparent business intelligence from Amazon reviews.

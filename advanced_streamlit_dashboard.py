@@ -153,36 +153,65 @@ if df is not None:
     
     # Real-time prediction section
     st.sidebar.subheader("🔍 Real-time Prediction")
-    user_text = st.sidebar.text_area("Enter text for sentiment prediction:", 
-                                    "This product is amazing!")
+    user_text = st.sidebar.text_area(
+        "Enter text for sentiment prediction:",
+        "This product is amazing! Love the quality and fast delivery.",
+        height=100
+    )
     
-    if st.sidebar.button("🚀 Predict Sentiment"):
+    if st.sidebar.button("🚀 Predict Sentiment", type="primary"):
         if selected_model in models:
             try:
                 if selected_model == 'bert' and BERT_AVAILABLE:
                     result = models['bert'](user_text)[0]
                     label_mapping = {
                         'LABEL_0': 'Negative',
-                        'LABEL_1': 'Neutral', 
+                        'LABEL_1': 'Neutral',
                         'LABEL_2': 'Positive',
                         'NEGATIVE': 'Negative',
                         'NEUTRAL': 'Neutral',
                         'POSITIVE': 'Positive'
                     }
-                    sentiment = label_mapping.get(result['label'], result['label'])
+                    sentiment = label_mapping.get(
+                        result['label'], result['label']
+                    )
                     confidence = result['score']
-                    st.sidebar.success(f"**{sentiment}** (Confidence: {confidence:.2%})")
+                    
+                    # Enhanced prediction display
+                    if sentiment == 'Positive':
+                        st.sidebar.success(
+                            f"**🟢 {sentiment}** "
+                            f"(Confidence: {confidence:.1%})"
+                        )
+                    elif sentiment == 'Negative':
+                        st.sidebar.error(
+                            f"**🔴 {sentiment}** "
+                            f"(Confidence: {confidence:.1%})"
+                        )
+                    else:
+                        st.sidebar.warning(
+                            f"**🟡 {sentiment}** "
+                            f"(Confidence: {confidence:.1%})"
+                        )
+                    
+                    # Add confidence meter
+                    st.sidebar.progress(confidence)
+                    
                 elif 'best_traditional' in selected_model:
-                    prediction = models['best_traditional'].predict([user_text])[0]
+                    prediction = models['best_traditional'].predict(
+                        [user_text]
+                    )[0]
                     st.sidebar.success(f"**{prediction.title()}**")
                 else:
                     st.sidebar.info("Model prediction not available")
             except Exception as e:
                 st.sidebar.error(f"Prediction error: {e}")
+        else:
+            st.sidebar.warning("Please select a valid model for prediction")
     
     # Main content tabs
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "📊 Overview", "🤖 ML Models", "📈 Analytics", "☁️ Word Clouds", 
+        "📊 Overview", "🤖 ML Models", "📈 Analytics", "☁️ Word Clouds",
         "🔍 Advanced Insights", "📚 Methodology"
     ])
     
