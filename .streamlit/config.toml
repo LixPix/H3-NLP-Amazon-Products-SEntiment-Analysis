@@ -1,7 +1,8 @@
 [server]
 headless = true
-port = $PORT
-enableCORS = false
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
 
 [theme]
 primaryColor = "#1f77b4"

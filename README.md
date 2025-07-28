@@ -13,7 +13,7 @@ This project analyzes Amazon product reviews using **state-of-the-art ML techniq
 - 📊 **Interactive Dashboard**: Real-time analytics and model comparison
 - � **Privacy-First**: Encrypted data processing (AES-128-CBC)
 - � **Business Intelligence**: Advanced insights and visualizations
-- 🚀 **Production-Ready**: Streamlit Cloud deployment
+- ☁️ **Cloud-Optimized**: Streamlit Cloud deployment with performance enhancements
 
 ---
 
@@ -50,8 +50,9 @@ streamlit run advanced_streamlit_dashboard.py
 ✅ **Production-Ready**: Scalable deployment with encrypted data processing  
 
 ### **📊 Dataset**
-- **34,000+ Amazon reviews** across Electronics, Home & Kitchen, Books, Sports
-- **Multi-class sentiment**: Positive, Negative, Neutral classification
+- **2,861 Amazon reviews** across Food & Beverages and Pet Products categories
+- **5 Products**: Dog Toy (556), Coconut Oil (567), Dog Treats (632), Cappucino (542), Diet Chips (564)
+- **Sentiment Distribution**: 81.9% Positive, 13.3% Negative, 4.7% Neutral
 - **Quality Assured**: Cleaned, deduplicated, and balanced dataset
 
 ---

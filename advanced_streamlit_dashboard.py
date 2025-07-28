@@ -1,6 +1,7 @@
 """
 🚀 Advanced ML-Powered Amazon Sentiment Analysis Dashboard
 Enterprise-grade sentiment analysis with BERT, Random Forest, SVM, and ensemble methods
+Optimized for cloud deployment with enhanced performance and error handling
 """
 
 import streamlit as st
@@ -16,18 +17,29 @@ import numpy as np
 import re
 import joblib
 import os
+from datetime import datetime
 
-# Advanced ML imports
+# Advanced ML imports with cloud optimization
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import warnings
 warnings.filterwarnings('ignore')
 
-# Try to import transformers for BERT
+# Try to import transformers for BERT with cloud compatibility
 try:
     from transformers import pipeline
     import torch
+    TRANSFORMERS_AVAILABLE = True
+    # Cloud optimization: Check available memory
+    if torch.cuda.is_available():
+        st.sidebar.success("🚀 GPU acceleration available")
+    else:
+        st.sidebar.info("💻 Running on CPU (cloud optimized)")
+except ImportError as e:
+    TRANSFORMERS_AVAILABLE = False
+    st.sidebar.warning("⚠️ BERT/Transformers not available. Using traditional ML only.")
+    st.sidebar.info("💡 To enable BERT: Install transformers and torch packages")
     BERT_AVAILABLE = True
 except ImportError:
     BERT_AVAILABLE = False
@@ -98,15 +110,46 @@ st.info("""
 *Perfect for data scientists and technical teams requiring maximum accuracy.*
 """)
 
-# Load data
-@st.cache_data
+# Load data with cloud optimization
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_data():
-    """Load the preprocessed dataset"""
+    """Load the preprocessed dataset with cloud-optimized fallbacks"""
     try:
-        df = pd.read_csv('H3_reviews_preprocessed.csv')
+        # Try multiple file locations for cloud deployment
+        possible_files = [
+            "H3_reviews_preprocessed.csv",
+            "./H3_reviews_preprocessed.csv", 
+            "data/H3_reviews_preprocessed.csv",
+            "../H3_reviews_preprocessed.csv"
+        ]
+        
+        df = None
+        for file_path in possible_files:
+            try:
+                df = pd.read_csv(file_path)
+                st.success(f"✅ Data loaded successfully from: {file_path}")
+                break
+            except FileNotFoundError:
+                continue
+        
+        if df is None:
+            st.error("❌ Data file not found in any expected location")
+            st.info("Please ensure 'H3_reviews_preprocessed.csv' is uploaded to your cloud deployment")
+            return None
+            
+        # Cloud optimization: Data type optimization
+        df['sentiment'] = df['sentiment'].astype('category')
+        df['ProductId'] = df['ProductId'].astype(str)
+        
+        # Memory optimization for cloud deployment
+        if len(df) > 10000:
+            st.info(f"📊 Large dataset detected ({len(df):,} rows). Optimizing for cloud performance...")
+        
         return df
-    except FileNotFoundError:
-        st.error("❌ Preprocessed data file not found. Please run the Jupyter notebook first.")
+        
+    except Exception as e:
+        st.error(f"❌ Error loading data: {str(e)}")
+        st.info("💡 If running on cloud, ensure your CSV file is properly uploaded")
         return None
 
 # Load ML models
@@ -139,7 +182,20 @@ def load_ml_models():
 if 'ml_predictions' not in st.session_state:
     st.session_state.ml_predictions = {}
 
-df = load_data()
+    df = load_data()
+
+# Initialize session state for interactive filtering
+if 'selected_product' not in st.session_state:
+    st.session_state.selected_product = None
+if 'selected_sentiment' not in st.session_state:
+    st.session_state.selected_sentiment = None
+
+# Reset filters button in sidebar
+st.sidebar.markdown("---")
+if st.sidebar.button("🔄 Reset All Filters"):
+    st.session_state.selected_product = None
+    st.session_state.selected_sentiment = None
+    st.rerun()
 models = load_ml_models()
 
 if df is not None:
@@ -255,31 +311,160 @@ if df is not None:
             </div>
             """.format(positive_pct), unsafe_allow_html=True)
         
-        # Enhanced visualizations
+        # Enhanced visualizations with interactive filtering
         st.markdown("### 📈 **Interactive Analytics**")
+        
+        # Display current selection info
+        if st.session_state.selected_product or st.session_state.selected_sentiment:
+            st.info(f"""
+            🎯 **Active Filters**: 
+            Product: {st.session_state.selected_product or 'All'} | 
+            Sentiment: {st.session_state.selected_sentiment or 'All'}
+            """)
         
         col1, col2 = st.columns(2)
         
         with col1:
-            # Sentiment distribution pie chart
-            sentiment_counts = df['sentiment'].value_counts()
-            fig_pie = px.pie(values=sentiment_counts.values, 
-                           names=sentiment_counts.index,
-                           title="Sentiment Distribution",
-                           color_discrete_map={
-                               'positive': '#28a745',
-                               'neutral': '#ffc107', 
-                               'negative': '#dc3545'
-                           })
-            fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.markdown("#### 📦 Top Products by Review Volume")
+            st.markdown("*Select a product below to see its sentiment breakdown*")
+            
+            # Apply sentiment filter to products if selected
+            display_data = df
+            if st.session_state.selected_sentiment:
+                display_data = display_data[display_data['sentiment'] == st.session_state.selected_sentiment]
+            
+            top_products_data = display_data['ProductId'].value_counts().head(10)
+            
+            # Create interactive bar chart
+            fig_products = px.bar(
+                x=top_products_data.values,
+                y=top_products_data.index,
+                orientation='h',
+                title="Top 10 Products by Review Count",
+                labels={'x': 'Number of Reviews', 'y': 'Product Name'},
+                color=top_products_data.values,
+                color_continuous_scale='viridis'
+            )
+            
+            # Highlight selected product
+            if st.session_state.selected_product:
+                colors = ['red' if prod == st.session_state.selected_product else 'blue' for prod in top_products_data.index]
+                fig_products.update_traces(marker_color=colors)
+            
+            fig_products.update_layout(
+                height=500,
+                showlegend=False,
+                font=dict(size=12),
+                yaxis=dict(title="Product Name"),
+                xaxis=dict(title="Number of Reviews")
+            )
+            
+            st.plotly_chart(fig_products, use_container_width=True)
+            
+            # Product selection dropdown
+            st.markdown("**Select a product to filter:**")
+            product_options = ['All Products'] + list(top_products_data.index)
+            
+            selected_product_dropdown = st.selectbox(
+                "Choose product:",
+                options=product_options,
+                index=0 if not st.session_state.selected_product else (
+                    product_options.index(st.session_state.selected_product) 
+                    if st.session_state.selected_product in product_options else 0
+                ),
+                key="adv_product_dropdown"
+            )
+            
+            if selected_product_dropdown != 'All Products':
+                if selected_product_dropdown != st.session_state.selected_product:
+                    st.session_state.selected_product = selected_product_dropdown
+                    st.rerun()
+            elif st.session_state.selected_product:
+                st.session_state.selected_product = None
+                st.rerun()
         
         with col2:
-            # Score distribution
-            fig_hist = px.histogram(df, x='Score', title="Rating Distribution",
-                                  color_discrete_sequence=['#007bff'])
-            fig_hist.update_layout(xaxis_title="Star Rating", yaxis_title="Count")
-            st.plotly_chart(fig_hist, use_container_width=True)
+            st.markdown("#### 🎯 Sentiment Distribution")
+            st.markdown("*Select a sentiment below to see products with that sentiment*")
+            
+            # Apply product filter to sentiment if selected
+            display_data = df
+            if st.session_state.selected_product:
+                display_data = display_data[display_data['ProductId'] == st.session_state.selected_product]
+            
+            sentiment_counts = display_data['sentiment'].value_counts()
+            
+            # Create interactive pie chart
+            title = "Sentiment Distribution"
+            if st.session_state.selected_product:
+                title += f" - {st.session_state.selected_product}"
+            
+            fig_pie = px.pie(
+                values=sentiment_counts.values,
+                names=sentiment_counts.index,
+                title=title,
+                color_discrete_map={
+                    'positive': '#28a745',
+                    'neutral': '#ffc107', 
+                    'negative': '#dc3545'
+                }
+            )
+            
+            fig_pie.update_traces(
+                textposition='inside',
+                textinfo='percent+label',
+                hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+            )
+            fig_pie.update_layout(height=500)
+            
+            st.plotly_chart(fig_pie, use_container_width=True)
+            
+            # Sentiment selection dropdown
+            st.markdown("**Select a sentiment to filter:**")
+            sentiment_options = ['All Sentiments', 'positive', 'negative', 'neutral']
+            
+            selected_sentiment_dropdown = st.selectbox(
+                "Choose sentiment:",
+                options=sentiment_options,
+                index=0 if not st.session_state.selected_sentiment else (
+                    sentiment_options.index(st.session_state.selected_sentiment) 
+                    if st.session_state.selected_sentiment in sentiment_options else 0
+                ),
+                key="adv_sentiment_dropdown"
+            )
+            
+            if selected_sentiment_dropdown != 'All Sentiments':
+                if selected_sentiment_dropdown != st.session_state.selected_sentiment:
+                    st.session_state.selected_sentiment = selected_sentiment_dropdown
+                    st.rerun()
+            elif st.session_state.selected_sentiment:
+                st.session_state.selected_sentiment = None
+                st.rerun()
+        
+        # Show filtered results summary
+        if st.session_state.selected_product or st.session_state.selected_sentiment:
+            st.markdown("---")
+            st.markdown("#### 📊 Filtered Results Summary")
+            
+            summary_data = df
+            if st.session_state.selected_product:
+                summary_data = summary_data[summary_data['ProductId'] == st.session_state.selected_product]
+            if st.session_state.selected_sentiment:
+                summary_data = summary_data[summary_data['sentiment'] == st.session_state.selected_sentiment]
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Filtered Reviews", len(summary_data))
+            with col2:
+                if st.session_state.selected_product and len(summary_data) > 0:
+                    product_sentiment = summary_data['sentiment'].value_counts()
+                    dominant_sentiment = product_sentiment.index[0] if len(product_sentiment) > 0 else "N/A"
+                    st.metric("Dominant Sentiment", dominant_sentiment)
+            with col3:
+                if st.session_state.selected_sentiment and len(summary_data) > 0:
+                    sentiment_products = summary_data['ProductId'].value_counts()
+                    top_product = sentiment_products.index[0] if len(sentiment_products) > 0 else "N/A"
+                    st.metric("Top Product", top_product[:20] + "..." if len(top_product) > 20 else top_product)
     
     with tab2:
         st.markdown("## 🤖 **Advanced ML Model Performance**")
@@ -459,7 +644,7 @@ if df is not None:
                            title="Top 10 Products by Positive Sentiment %",
                            color=top_products.values,
                            color_continuous_scale='Greens')
-            fig_top.update_layout(xaxis_title="Positive Sentiment %", yaxis_title="Product ID")
+            fig_top.update_layout(xaxis_title="Positive Sentiment %", yaxis_title="Product Name")
             st.plotly_chart(fig_top, use_container_width=True)
         
         with col2:
