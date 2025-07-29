@@ -1,19 +1,16 @@
-# 🚀 Advanced ML-Powered Amazon Sentiment Analysis
+# 🚀 ML-Powered Amazon Sentiment Analysis
 
-**Enterprise-Grade Sentiment Analysis with BERT, Random Forest & Ensemble Methods**
+**Sentiment Analysis with BERT, Random Forest & Ensemble Methods**
 
-This project analyzes Amazon product reviews using **state-of-the-art ML techniques** including BERT transformers, ensemble methods, and traditional algorithms for **enterprise-level performance**.
+This project analyzes Amazon product reviews using **ML techniques** including BERT transformers, ensemble methods, and traditional algorithms to classify reviews and identify key words under each class.  The trained model is deployed for real time prediction on Streamlit.
 
 ---
 
 ## 🏆 **Key Features**
 
-- 🤖 **BERT Integration**: Transformer models (92-95% accuracy)
-- 🌲 **ML Ensemble**: Random Forest, SVM, Naive Bayes (85-90% accuracy)  
-- 📊 **Interactive Dashboard**: Real-time analytics and model comparison
 - � **Privacy-First**: Encrypted data processing (AES-128-CBC)
-- � **Business Intelligence**: Advanced insights and visualizations
-- ☁️ **Cloud-Optimized**: Streamlit Cloud deployment with performance enhancements
+- 📊 **Interactive Dashboard**: Real-time text sentiment prediction powered by trained ML model.  Insights into model performance,  training data and key words identified under each sentimental class.
+- ☁️ **Cloud-Optimized**: Streamlit Cloud deployment of the interactive dashboard
 
 ---
 
