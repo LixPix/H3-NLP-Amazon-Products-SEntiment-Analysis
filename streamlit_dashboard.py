@@ -19,14 +19,6 @@ st.set_page_config(
     }
 )
 
-# Page configuration
-st.set_page_config(
-    page_title="Amazon Reviews Analytics",
-    page_icon="�",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Custom CSS for professional styling
 st.markdown("""
 <style>
@@ -475,6 +467,34 @@ with tab3:
     col1, col2 = st.columns(2)
     
     with col1:
+        # Define product-related words to filter out
+        def filter_product_words(text):
+            """Remove product-related words from text for cleaner word clouds"""
+            product_words = {
+                # Animal products
+                'dog', 'dogs', 'cat', 'cats', 'pet', 'pets', 'puppy', 'puppies',
+                'kitten', 'kittens', 'animal', 'animals',
+                # Toy related
+                'toy', 'toys', 'ball', 'balls', 'rope', 'squeaky', 'chew',
+                'treat', 'treats', 'bone', 'bones', 'stick', 'sticks',
+                # Food/beverage products
+                'oil', 'coconut', 'chips', 'chip', 'cappuccino', 'cappucino',
+                'coffee', 'beverage', 'drink', 'food', 'snack', 'snacks',
+                'flavor', 'flavors', 'taste', 'tastes',
+                # Generic product terms
+                'product', 'products', 'item', 'items', 'brand', 'company',
+                'package', 'packaging', 'box', 'bottle', 'container', 'bag',
+                'piece', 'pieces', 'size', 'sizes', 'color', 'colors',
+                # Common descriptors
+                'amazon', 'prime', 'delivery', 'shipping', 'order', 'purchase',
+                'buy', 'bought', 'seller', 'customer', 'review', 'reviews'
+            }
+            
+            # Split text into words and filter
+            words = text.lower().split()
+            filtered_words = [word for word in words if word not in product_words]
+            return ' '.join(filtered_words)
+        
         # Word cloud with sentiment selection
         sentiment_choice = st.selectbox(
             "Choose sentiment for word cloud:",
@@ -495,25 +515,31 @@ with tab3:
                                 text = text[:50000] + "..."
                                 st.info("📊 Large text dataset - using sample for performance")
                             
-                            wc = WordCloud(
-                                width=800,
-                                height=400,
-                                background_color='white',
-                                max_words=100,
-                                colormap='viridis',
-                                relative_scaling=0.5,
-                                prefer_horizontal=0.9,  # Cloud optimization
-                                max_font_size=50,       # Cloud optimization
-                                min_font_size=10        # Cloud optimization
-                            ).generate(text)
+                            # Filter out product-related words
+                            filtered_text = filter_product_words(text)
                             
-                            fig, ax = plt.subplots(figsize=(12, 6))
-                            ax.imshow(wc, interpolation='bilinear')
-                            ax.axis('off')
-                            ax.set_title(f'{sentiment_choice.title()} Sentiment Word Cloud',
-                                       fontsize=16, fontweight='bold')
-                            st.pyplot(fig)
-                            plt.close(fig)  # Important for cloud memory management
+                            if filtered_text.strip():
+                                wc = WordCloud(
+                                    width=800,
+                                    height=400,
+                                    background_color='white',
+                                    max_words=100,
+                                    colormap='viridis',
+                                    relative_scaling=0.5,
+                                    prefer_horizontal=0.9,  # Cloud optimization
+                                    max_font_size=50,       # Cloud optimization
+                                    min_font_size=10        # Cloud optimization
+                                ).generate(filtered_text)
+                                
+                                fig, ax = plt.subplots(figsize=(12, 6))
+                                ax.imshow(wc, interpolation='bilinear')
+                                ax.axis('off')
+                                ax.set_title(f'{sentiment_choice.title()} Sentiment Word Cloud (Product Terms Filtered)',
+                                           fontsize=16, fontweight='bold')
+                                st.pyplot(fig)
+                                plt.close(fig)  # Important for cloud memory management
+                            else:
+                                st.warning("No meaningful words left after filtering product terms.")
                             
                     except Exception as e:
                         st.error(f"Error generating word cloud: {str(e)}")

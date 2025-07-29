@@ -212,6 +212,34 @@ def load_ml_models():
 data = load_data()
 models = load_ml_models()
 
+# Define product-related words to filter out (global function)
+def filter_product_words(text):
+    """Remove product-related words from text for cleaner word clouds"""
+    product_words = {
+        # Animal products
+        'dog', 'dogs', 'cat', 'cats', 'pet', 'pets', 'puppy', 'puppies',
+        'kitten', 'kittens', 'animal', 'animals',
+        # Toy related
+        'toy', 'toys', 'ball', 'balls', 'rope', 'squeaky', 'chew',
+        'treat', 'treats', 'bone', 'bones', 'stick', 'sticks',
+        # Food/beverage products
+        'oil', 'coconut', 'chips', 'chip', 'cappuccino', 'cappucino',
+        'coffee', 'beverage', 'drink', 'food', 'snack', 'snacks',
+        'flavor', 'flavors', 'taste', 'tastes',
+        # Generic product terms
+        'product', 'products', 'item', 'items', 'brand', 'company',
+        'package', 'packaging', 'box', 'bottle', 'container', 'bag',
+        'piece', 'pieces', 'size', 'sizes', 'color', 'colors',
+        # Common descriptors
+        'amazon', 'prime', 'delivery', 'shipping', 'order', 'purchase',
+        'buy', 'bought', 'seller', 'customer', 'review', 'reviews'
+    }
+    
+    # Split text into words and filter
+    words = text.lower().split()
+    filtered_words = [word for word in words if word not in product_words]
+    return ' '.join(filtered_words)
+
 # Display BERT/GPU status in sidebar after page config
 if TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
     if GPU_AVAILABLE:
@@ -802,32 +830,39 @@ if df is not None:
             sentiment_text = " ".join(df[df['sentiment'] == sentiment]['cleaned_text'].dropna())
             
             if sentiment_text.strip():
+                # Filter out product-related words
+                filtered_sentiment_text = filter_product_words(sentiment_text)
+                
                 col1, col2 = st.columns([2, 1])
                 
                 with col1:
-                    # Generate word cloud
-                    wordcloud = WordCloud(
-                        width=800, height=400,
-                        background_color=sentiment_colors[sentiment]['bg_color'],
-                        colormap=sentiment_colors[sentiment]['colormap'],
-                        max_words=100,
-                        relative_scaling=0.5,
-                        random_state=42
-                    ).generate(sentiment_text)
-                    
-                    fig, ax = plt.subplots(figsize=(10, 5))
-                    ax.imshow(wordcloud, interpolation='bilinear')
-                    ax.axis('off')
-                    st.pyplot(fig)
+                    # Generate word cloud with filtered text
+                    if filtered_sentiment_text.strip():
+                        wordcloud = WordCloud(
+                            width=800, height=400,
+                            background_color=sentiment_colors[sentiment]['bg_color'],
+                            colormap=sentiment_colors[sentiment]['colormap'],
+                            max_words=100,
+                            relative_scaling=0.5,
+                            random_state=42
+                        ).generate(filtered_sentiment_text)
+                        
+                        fig, ax = plt.subplots(figsize=(10, 5))
+                        ax.imshow(wordcloud, interpolation='bilinear')
+                        ax.axis('off')
+                        st.pyplot(fig)
+                    else:
+                        st.warning("No meaningful words left after filtering product terms.")
                 
                 with col2:
-                    # Top words for this sentiment
-                    words = sentiment_text.split()
-                    word_freq = Counter(words)
+                    # Top words for this sentiment (also filtered)
+                    filtered_words = filtered_sentiment_text.split()
+                    word_freq = Counter(filtered_words)
                     top_words = pd.DataFrame(word_freq.most_common(10), 
                                            columns=['Word', 'Frequency'])
                     
                     st.markdown(f"**Top 10 {sentiment.title()} Words**")
+                    st.caption("*Product-related terms filtered out*")
                     st.dataframe(top_words, use_container_width=True)
     
     with tab5:
