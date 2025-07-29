@@ -96,7 +96,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Enhanced ML Benefits Notice
+# Enhanced ML Benefits
 st.info("""
 ### 🎯 **Why Choose the Advanced ML Version?**
 
@@ -108,12 +108,6 @@ st.info("""
 ⚡ **Auto-Training**: Automatically trains models if none are pre-loaded
 
 *Perfect for data scientists and technical teams requiring maximum accuracy.*
-""")
-
-st.success("""
-🚀 **Smart Model Loading**: This dashboard automatically trains a Random Forest model 
-on your data if no pre-trained models are found. For best performance, run the 
-Jupyter notebook to create optimized models.
 """)
 
 # Load data with cloud optimization
@@ -133,7 +127,6 @@ def load_data():
         for file_path in possible_files:
             try:
                 df = pd.read_csv(file_path)
-                st.success(f"✅ Data loaded successfully from: {file_path}")
                 break
             except FileNotFoundError:
                 continue
@@ -146,10 +139,6 @@ def load_data():
         # Cloud optimization: Data type optimization
         df['sentiment'] = df['sentiment'].astype('category')
         df['ProductId'] = df['ProductId'].astype(str)
-        
-        # Memory optimization for cloud deployment
-        if len(df) > 10000:
-            st.info(f"📊 Large dataset detected ({len(df):,} rows). Optimizing for cloud performance...")
         
         return df
         
@@ -168,10 +157,8 @@ def load_ml_models():
     try:
         if os.path.exists('best_sentiment_model.pkl'):
             models['best_traditional'] = joblib.load('best_sentiment_model.pkl')
-            st.success("✅ Loaded saved Random Forest model")
         if os.path.exists('ensemble_sentiment_model.pkl'):
             models['ensemble'] = joblib.load('ensemble_sentiment_model.pkl')
-            st.success("✅ Loaded saved Ensemble model")
     except Exception as e:
         st.warning(f"Could not load saved models: {e}")
     
@@ -181,7 +168,6 @@ def load_ml_models():
             # Load data for training
             df = pd.read_csv("H3_reviews_preprocessed.csv")
             if 'cleaned_text' in df.columns and 'sentiment' in df.columns:
-                st.info("🤖 Training a simple Random Forest model...")
                 
                 # Quick model training
                 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -204,7 +190,6 @@ def load_ml_models():
                 model.fit(X, y)
                 
                 models['best_traditional'] = model
-                st.success("✅ Trained simple Random Forest model on sample data")
                 
         except Exception as e:
             st.warning(f"Could not train simple model: {e}")
@@ -212,21 +197,20 @@ def load_ml_models():
     # Initialize BERT if available
     if TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
         try:
-            st.info("🤖 Loading BERT model for advanced sentiment analysis...")
             models['bert'] = pipeline(
                 "sentiment-analysis", 
                 model="cardiffnlp/twitter-roberta-base-sentiment-latest",
                 device=0 if torch.cuda.is_available() else -1,
                 return_all_scores=True
             )
-            st.success("✅ BERT model loaded successfully!")
         except Exception as e:
             st.warning(f"⚠️ Could not load BERT model: {e}")
-            st.info("💡 BERT requires internet connection for first-time download")
-    else:
-        st.info("ℹ️ BERT/Transformers not available. Using traditional ML models only.")
     
     return models
+
+# Load data and models after functions are defined
+data = load_data()
+models = load_ml_models()
 
 # Display BERT/GPU status in sidebar after page config
 if TRANSFORMERS_AVAILABLE and BERT_AVAILABLE:
@@ -244,8 +228,18 @@ else:
 if 'ml_predictions' not in st.session_state:
     st.session_state.ml_predictions = {}
 
+# Clear status messages on fresh run
+if 'status_messages' not in st.session_state:
+    st.session_state.status_messages = []
+else:
+    # Clear old messages on each run to prevent accumulation
+    st.session_state.status_messages = []
+
 # Load data
 df = load_data()
+
+# Load models
+models = load_ml_models()
 
 # Initialize session state for interactive filtering
 if 'selected_product' not in st.session_state:
@@ -259,9 +253,6 @@ if st.sidebar.button("🔄 Reset All Filters"):
     st.session_state.selected_product = None
     st.session_state.selected_sentiment = None
     st.rerun()
-
-# Load models
-models = load_ml_models()
 
 if df is not None:
     # Sidebar for controls
