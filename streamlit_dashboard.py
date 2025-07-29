@@ -290,12 +290,12 @@ with tab1:
             
             top_products_data = display_data['ProductId'].value_counts().head(10)
             
-            # Create interactive bar chart
+            # Create interactive bar chart with click functionality
             fig_products = px.bar(
                 x=top_products_data.values,
                 y=top_products_data.index,
                 orientation='h',
-                title="Top 10 Products by Review Count",
+                title="Products by Review Count",
                 labels={'x': 'Number of Reviews', 'y': 'Product Name'},
                 color=top_products_data.values,
                 color_continuous_scale='viridis'
@@ -314,28 +314,29 @@ with tab1:
                 xaxis=dict(title="Number of Reviews")
             )
             
-            st.plotly_chart(fig_products, use_container_width=True)
-            
-            # Product selection dropdown and buttons
-            st.markdown("**Select a product to filter:**")
-            product_options = ['All Products'] + list(top_products_data.index)
-            
-            selected_product_dropdown = st.selectbox(
-                "Choose product:",
-                options=product_options,
-                index=0 if not st.session_state.selected_product else (
-                    product_options.index(st.session_state.selected_product) 
-                    if st.session_state.selected_product in product_options else 0
-                ),
-                key="product_dropdown"
+            # Interactive bar chart with click detection
+            clicked_product = st.plotly_chart(
+                fig_products, 
+                use_container_width=True, 
+                key="product_chart",
+                on_select="rerun"
             )
             
-            if selected_product_dropdown != 'All Products':
-                if selected_product_dropdown != st.session_state.selected_product:
-                    st.session_state.selected_product = selected_product_dropdown
-                    st.rerun()
-            elif st.session_state.selected_product:
+            # Handle product chart clicks
+            if clicked_product and hasattr(clicked_product, 'selection') and clicked_product.selection:
+                if 'points' in clicked_product.selection and clicked_product.selection['points']:
+                    point = clicked_product.selection['points'][0]
+                    if 'y' in point:
+                        new_product = point['y']
+                        if new_product != st.session_state.selected_product:
+                            st.session_state.selected_product = new_product
+                            st.session_state.selected_sentiment = None
+                            st.rerun()
+            
+            # Clear all filters button under bar chart
+            if st.button("🔄 Clear All Filters", key="clear_all_filters_bar"):
                 st.session_state.selected_product = None
+                st.session_state.selected_sentiment = None
                 st.rerun()
     
     with col2:
@@ -350,11 +351,11 @@ with tab1:
             
             sentiment_counts = display_data['sentiment'].value_counts()
             
-            # Create interactive pie chart
+            # Create interactive pie chart with click functionality
             fig_pie = px.pie(
                 values=sentiment_counts.values,
                 names=sentiment_counts.index,
-                title=f"Sentiment Distribution" + (f" - {st.session_state.selected_product}" if st.session_state.selected_product else ""),
+                title="Sentiment Distribution",
                 color_discrete_map={
                     'positive': '#2E8B57',
                     'neutral': '#FFD700', 
@@ -369,29 +370,52 @@ with tab1:
             )
             fig_pie.update_layout(height=500)
             
-            st.plotly_chart(fig_pie, use_container_width=True)
-            
-            # Sentiment selection dropdown
-            st.markdown("**Select a sentiment to filter:**")
-            sentiment_options = ['All Sentiments', 'positive', 'negative', 'neutral']
-            
-            selected_sentiment_dropdown = st.selectbox(
-                "Choose sentiment:",
-                options=sentiment_options,
-                index=0 if not st.session_state.selected_sentiment else (
-                    sentiment_options.index(st.session_state.selected_sentiment) 
-                    if st.session_state.selected_sentiment in sentiment_options else 0
-                ),
-                key="sentiment_dropdown"
+            # Interactive pie chart with click detection
+            clicked_sentiment = st.plotly_chart(
+                fig_pie, 
+                use_container_width=True,
+                key="sentiment_chart",
+                on_select="rerun"
             )
             
-            if selected_sentiment_dropdown != 'All Sentiments':
-                if selected_sentiment_dropdown != st.session_state.selected_sentiment:
-                    st.session_state.selected_sentiment = selected_sentiment_dropdown
+            # Handle sentiment chart clicks
+            if clicked_sentiment and hasattr(clicked_sentiment, 'selection') and clicked_sentiment.selection:
+                if 'points' in clicked_sentiment.selection and clicked_sentiment.selection['points']:
+                    point = clicked_sentiment.selection['points'][0]
+                    if 'label' in point:
+                        new_sentiment = point['label']
+                        if new_sentiment != st.session_state.selected_sentiment:
+                            st.session_state.selected_sentiment = new_sentiment
+                            st.session_state.selected_product = None
+                            st.rerun()
+            
+            # Sentiment filter buttons under pie chart
+            st.markdown("**Filter products by sentiment:**")
+            col_sent1, col_sent2, col_sent3, col_sent4 = st.columns(4)
+            
+            with col_sent1:
+                if st.button("📊 All", key="filter_all_sentiment"):
+                    st.session_state.selected_sentiment = None
+                    st.session_state.selected_product = None
                     st.rerun()
-            elif st.session_state.selected_sentiment:
-                st.session_state.selected_sentiment = None
-                st.rerun()
+            
+            with col_sent2:
+                if st.button("😊 Positive", key="filter_positive"):
+                    st.session_state.selected_sentiment = "positive"
+                    st.session_state.selected_product = None
+                    st.rerun()
+            
+            with col_sent3:
+                if st.button("😞 Negative", key="filter_negative"):
+                    st.session_state.selected_sentiment = "negative"
+                    st.session_state.selected_product = None
+                    st.rerun()
+            
+            with col_sent4:
+                if st.button("😐 Neutral", key="filter_neutral"):
+                    st.session_state.selected_sentiment = "neutral"
+                    st.session_state.selected_product = None
+                    st.rerun()
     
     # Show filtered results summary
     if st.session_state.selected_product or st.session_state.selected_sentiment:
