@@ -20,21 +20,6 @@ This project analyzes Amazon product reviews using **ML techniques** including B
 - **📊 Main Analytics**: [Business Dashboard](https://amazon-sentiment-analytics.streamlit.app) *(Fast, streamlined)*
 - **🤖 Advanced ML**: [Technical Dashboard](https://amazon-sentiment-advanced-ml.streamlit.app) *(BERT, ensemble models)*
 
-### **� Local Setup**
-```bash
-git clone https://github.com/LixPix/H3-NLP-Amazon-Products-SEntiment-Analysis.git
-cd H3-NLP-Amazon-Products-SEntiment-Analysis
-pip install -r requirements.txt
-streamlit run streamlit_dashboard.py
-```
-
-### **📊 Advanced ML Features**
-```bash
-# For BERT and advanced models
-pip install transformers torch
-streamlit run advanced_streamlit_dashboard.py
-```
-
 ---
 
 ## 🎯 **Core Capabilities**
@@ -50,51 +35,12 @@ streamlit run advanced_streamlit_dashboard.py
 - **2,861 Amazon reviews** across Food & Beverages and Pet Products categories
 - **5 Products**: Dog Toy (556), Coconut Oil (567), Dog Treats (632), Cappucino (542), Diet Chips (564)
 - **Sentiment Distribution**: 81.9% Positive, 13.3% Negative, 4.7% Neutral
-- **Quality Assured**: Cleaned, deduplicated, and balanced dataset
+
+This is a data subset extracted from https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews.
+
+A subset was used for testing and to ease machine processing requirements.  The subset was chosen to maintain overall score distribution.
 
 ---
-
-## 🛠️ **Technical Implementation**
-
-### **🔧 Tech Stack**
-- **ML Core**: BERT, scikit-learn, transformers  
-- **Frontend**: Streamlit with advanced visualizations  
-- **Data**: Pandas, NumPy, NLTK preprocessing  
-- **Security**: Cryptography (AES-128-CBC encryption)  
-- **Deployment**: Streamlit Cloud, containerized architecture  
-
-### **� Data Schema**
-| Feature | Description |
-|---------|-------------|
-| `ProductId` | Unique product identifier |
-| `Score` | Product rating (1-5 stars) |
-| `Text` | Review content (processed) |
-| `sentiment` | ML-classified sentiment |
-| `cleaned_text` | Preprocessed text |
-
----
-
-## 📊 **Usage & Deployment**
-
-### **🎮 Dual Dashboard Options**
-```bash
-# Option 1: Main Analytics Dashboard (Fast)
-streamlit run streamlit_dashboard.py
-
-# Option 2: Advanced ML Dashboard (Full Features)
-streamlit run advanced_streamlit_dashboard.py
-```
-
-### **🔐 Privacy & Security**
-- **Data Encryption**: AES-128-CBC with Fernet cryptography
-- **GDPR Compliant**: Privacy-first data processing
-- **No PII Storage**: Customer data encrypted at rest
-
-### **📈 Business Intelligence**
-- Real-time sentiment trends analysis
-- Product performance insights
-- Customer satisfaction metrics
-- Actionable recommendations for product optimization
 
 ## 🚀 **Project Structure**
 
@@ -108,52 +54,6 @@ H3-NLP-Amazon-Products-SEntiment-Analysis/
 ├── 🔧 Procfile                       # Deployment config
 └── 📄 README.md                      # Documentation
 ```
-
-### **📄 Requirements**
-```txt
-streamlit>=1.28.0
-pandas>=2.1.1
-plotly>=5.17.0
-nltk>=3.8.1
-transformers>=4.36.0  # For BERT models
-torch>=2.1.0          # For ML inference
-scikit-learn>=1.3.0   # For traditional ML
-cryptography>=41.0.0  # For security
-```
-
----
-
-## 🤝 **Contributing**
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-**License**: MIT © 2024
-
----
-
-## 🎯 **Future Enhancements**
-
-- [ ] Multi-language sentiment analysis
-- [ ] Real-time data streaming
-- [ ] Advanced ensemble methods
-- [ ] API endpoint development
-- [ ] Mobile-responsive dashboard
-
----
-
-*Built with ❤️ using advanced ML techniques for enterprise-grade sentiment analysis*
-
-### **🏗️ Architecture Components:**
-1. **Data Ingestion Layer**: Excel/CSV file processing
-2. **Preprocessing Engine**: NLP pipeline with cleaning & tokenization
-3. **Sentiment Classifier**: Rule-based classification system
-4. **Analytics Engine**: Statistical analysis & pattern discovery
-5. **Visualization Layer**: Interactive dashboard with real-time filtering
-6. **Security Module**: Encryption and privacy protection
 
 ---
 
@@ -281,212 +181,7 @@ streamlit run streamlit_dashboard.py
 # Cloud deployment
 https://your-app.streamlit.app
 ```
-
----
-
-## 🧠 Business Intelligence Insights
-
-### **🎯 Immediate Actionable Insights:**
-
-#### **Product Management:**
-- **Promote Success**: Leverage coconut oil and food products with positive sentiment
-- **Address Issues**: Investigate quality concerns in toy and rope categories
-- **Inventory Focus**: Prioritize well-performing product lines
-
-#### **Marketing Strategy:**
-- **Language Optimization**: Use emotional language ("love", "great") in campaigns
-- **Product Positioning**: Highlight natural/organic product benefits
-- **Target Segments**: Focus on customers who value quality and natural ingredients
-
-#### **Customer Service:**
-- **Priority Queues**: Address negative sentiment reviews first
-- **Quality Assurance**: Monitor toy and rope product feedback closely
-- **Proactive Engagement**: Reach out to neutral reviewers for conversion
-
-### **📈 Strategic Applications:**
-
-#### **Predictive Analytics:**
-- **Trend Forecasting**: Predict sentiment trajectory for new products
-- **Early Warning System**: Detect emerging quality issues
-- **Success Indicators**: Identify characteristics of high-performing products
-
-#### **Competitive Analysis:**
-- **Sentiment Benchmarking**: Compare against industry standards
-- **Feature Gaps**: Identify missing product capabilities
-- **Market Positioning**: Understand customer preference patterns
-
----
-
-## 🔒 Privacy & Security
-
-### **🛡️ Data Protection Measures:**
-- **Encryption**: Fernet symmetric encryption for ProfileName data
-- **Anonymization**: PII removal and pseudonymization
-- **GDPR Compliance**: European data protection regulation adherence
-- **Secure Storage**: Cloud infrastructure with encryption at rest
-
-### **🔐 Security Implementation:**
-```python
-# Encryption key generation
-def generate_key():
-    password = "secure_password"  # Store securely in production
-    key = hashlib.sha256(password.encode()).digest()
-    return base64.urlsafe_b64encode(key)
-
-# Data encryption
-def encrypt_profile_name(profile_name):
-    encrypted = cipher_suite.encrypt(str(profile_name).encode())
-    return encrypted.decode()
-```
-
-### **📋 Compliance Features:**
-- **Data Minimization**: Only necessary data processed
-- **Purpose Limitation**: Data used only for sentiment analysis
-- **Transparency**: Clear methodology documentation
-- **Audit Trail**: Processing steps fully documented
-
----
-
-## 📁 Project Structure
-
-```
-H3-NLP-Amazon-Products-SEntiment-Analysis/
-├── 📊 Data Files
-│   ├── H3_reviews_rawdata_filtered.csv.xlsx    # Original dataset
-│   └── H3_reviews_preprocessed.csv             # Cleaned dataset
-├── 📓 Jupyter Notebooks
-│   ├── NLP_Amazon_Products_Sentiment_Anlysis.ipynb  # Main analysis
-│   └── Notebook_Template.ipynb                      # Template
-├── 🖥️ Dashboard
-│   └── streamlit_dashboard.py                  # Interactive dashboard
-├── ⚙️ Configuration
-│   ├── requirements.txt                        # Python dependencies
-│   ├── setup.sh                               # Streamlit setup
-│   └── Procfile                               # Deployment config
-└── 📚 Documentation
-    └── README.md                              # This file
-```
-
----
-
-## 🛠️ Installation & Setup
-
-### **🔧 Prerequisites:**
-- Python 3.8+ (recommended: 3.10)
-- pip package manager
-- Git for version control
-
-### **📦 Quick Setup:**
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/LixPix/H3-NLP-Amazon-Products-SEntiment-Analysis.git
-cd H3-NLP-Amazon-Products-SEntiment-Analysis
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Download NLTK data
-python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('stopwords')"
-
-# 4. Run the dashboard
-streamlit run streamlit_dashboard.py
-```
-
-### **🌐 Cloud Deployment:**
-
-```bash
-# Streamlit Cloud deployment
-# 1. Fork the repository on GitHub
-# 2. Connect to Streamlit Cloud
-# 3. Deploy with optimized requirements.txt
-```
-
-### **📋 Dependencies:**
-```
-streamlit>=1.28.0
-pandas>=2.0.0
-plotly>=5.17.0
-matplotlib>=3.7.0
-wordcloud>=1.9.2
-nltk>=3.8.1
-cryptography>=41.0.0
-```
-
----
-
-## 🎮 Usage Instructions
-
-### **📓 Jupyter Notebook Analysis:**
-
-```bash
-# 1. Open Jupyter Lab/Notebook
-jupyter lab
-
-# 2. Navigate to jupyter_notebooks/
-# 3. Open NLP_Amazon_Products_Sentiment_Anlysis.ipynb
-# 4. Run all cells sequentially
-```
-
-### **📱 Interactive Dashboard:**
-
-```bash
-# 1. Launch dashboard
-streamlit run streamlit_dashboard.py
-
-# 2. Access in browser
-http://localhost:8501
-
-# 3. Use interactive filters:
-#    - Select sentiments to analyze
-#    - Choose specific products
-#    - Filter by date range
-#    - Adjust text length criteria
-```
-
-### **🔄 Data Processing:**
-
-```python
-# Custom analysis example
-import pandas as pd
-
-# Load preprocessed data
-df = pd.read_csv('H3_reviews_preprocessed.csv')
-
-# Custom sentiment analysis
-positive_reviews = df[df['sentiment'] == 'positive']
-print(f"Positive reviews: {len(positive_reviews)}")
-```
-
----
-
-## 📈 Results & Performance
-
-### **🎯 Classification Performance:**
-- **Accuracy**: 95%+ (validated against manual review sample)
-- **Processing Speed**: 2,861 reviews processed in <30 seconds
-- **Memory Efficiency**: <100MB RAM usage for full dataset
-- **Scalability**: Tested up to 100K+ reviews
-
-### **📊 Business Impact Metrics:**
-- **Insight Generation**: 15+ actionable business insights identified
-- **Problem Detection**: 3 major product issues discovered
-- **Success Identification**: 5+ high-performing product categories
-- **Trend Analysis**: 12-month temporal patterns revealed
-
-### **🔍 Technical Validation:**
-- **Data Quality**: 100% completeness after preprocessing
-- **Privacy Compliance**: Full PII encryption implemented
-- **Dashboard Performance**: <2 second load times
-- **Deployment Success**: 99.9% uptime on Streamlit Cloud
-
-### **💡 Key Achievements:**
-✅ **Goal 1**: Sentiment classification with 95%+ accuracy  
-✅ **Goal 2**: Keyword impact analysis with statistical validation  
-✅ **Goal 3**: Interactive dashboard with real-time filtering  
-✅ **Goal 4**: Predictive insights for product success trends  
-
----
+----
 
 ## 🚀 Future Enhancements
 
@@ -542,11 +237,6 @@ We welcome contributions to improve this sentiment analysis project!
    - Include screenshots for UI changes
    - Reference any related issues
 
-### **📋 Contribution Guidelines:**
-- **Code Quality**: Follow PEP 8 style guidelines
-- **Documentation**: Update README and docstrings
-- **Testing**: Validate changes with sample data
-- **Privacy**: Maintain data protection standards
 
 ---
 
@@ -554,11 +244,6 @@ We welcome contributions to improve this sentiment analysis project!
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-### **🔓 Open Source Benefits:**
-- ✅ Free for commercial and personal use
-- ✅ Modify and distribute freely
-- ✅ No warranty or liability restrictions
-- ✅ Community-driven improvements
 
 ---
 
@@ -577,11 +262,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Project Maintainer**: LixPix  
 **Repository**: [H3-NLP-Amazon-Products-SEntiment-Analysis](https://github.com/LixPix/H3-NLP-Amazon-Products-SEntiment-Analysis)
 
-### **🆘 Getting Help:**
-- **Issues**: Report bugs via GitHub Issues
-- **Discussions**: Join community discussions
-- **Documentation**: Comprehensive guides in `/docs`
-- **Examples**: Sample code in `/examples`
+
 
 ---
 
